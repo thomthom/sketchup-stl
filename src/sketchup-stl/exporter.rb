@@ -65,9 +65,13 @@ module CommunityExtensions
          end
          scale = scale_factor(options['export_units'])
          write_header(file, model_name, options['stl_format'])
-         facet_count = find_faces(file, export_entities, 0, scale, Geom::Transformation.new)
+         facet_count = find_faces(file, export_entities, 0, scale, SWAP_YZ)
          write_footer(file, facet_count, model_name, options['stl_format'])
       end
+
+      SWAP_YZ = Geom::Transformation.axes(
+        ORIGIN, X_AXIS, Z_AXIS.reverse, Y_AXIS
+      )
 
       def self.find_faces(file, entities, facet_count, scale, tform)
         entities.each do |entity|
@@ -133,7 +137,7 @@ module CommunityExtensions
               file.write(pt.pack("e3"))
             end
             # 2-byte "Attribute byte count" spacer. Nonstandard use by some stl software
-            # to store color data. Was never widely supported. Should be 0. 
+            # to store color data. Was never widely supported. Should be 0.
             # "S<" - 16-bit unsigned integer, little-endian
             file.write([0].pack("S<"))
             facets_written += 1
